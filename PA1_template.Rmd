@@ -1,25 +1,127 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+output: html_document
 ---
 
 
-## Loading and preprocessing the data
+```{r header, echo=FALSE,results = "hide"}
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+```
 
+#Loading and preprocessing the data
 
+```{r read}
+SrcFilename<-"repdata-data-activity.zip"
+if (!file.exists(SrcFilename)){
+  #  quit(save = "ask", status = 0,
+  #       runLast = TRUE)
+  print (paste("file ",SrcFilename,"File not found"))
+}
+unzip(SrcFilename)
+ActivityData<-read.csv("activity.csv",header=TRUE,sep=",")
+```
 
-## What is mean total number of steps taken per day?
+#What is mean total number of steps taken per day
 
+```{r aggregatedata}
+SumDataActivity<-aggregate(steps~date,ActivityData,sum)
+```
 
+1.) Plot the histogram of the total number of steps taken each day.
 
-## What is the average daily activity pattern?
+```{r makehistogram}
+p<- ggplot(SumDataActivity,aes(x = steps))+ 
+  geom_histogram(fill="blue") +
+  labs(x="Total number of steps per day", y = "Count")
+print(p)
+```
 
+2.) Mean and median of the number of steps
+``` {r meanmedian}
+MeanVal<-mean(SumDataActivity[,2])
+MedianVal<-median(SumDataActivity[,2])
+print(MeanVal)
+print(MedianVal)
+```
 
+#What is the average daily activity pattern?
 
-## Imputing missing values
+```{r averageDailyPat }
+AvgDailyIntervalPat<-aggregate(steps~interval,ActivityData,mean)
+with(AvgDailyIntervalPat,{ 
+  plot(interval,steps,type="l",xlab="time interval [sec]",ylab="Avg number of steps",lwd="2",main="Average activity",col="red") 
+})
+```
 
+- Get the interval with max number of steps over all days
 
+```{r}
+indx<-which.max(AvgDailyIntervalPat[,2])
+Intervalbegin<-AvgDailyIntervalPat[indx,1]
+Intervalend<-Intervalbegin+5
+print(paste("Interval of max mean steps:",Intervalbegin,"-",Intervalend))
+```
 
-## Are there differences in activity patterns between weekdays and weekends?
+#Imputing missing values
+- Count Number of rows with NA
+
+```{r}
+NumCompCases<-sum(complete.cases(ActivityData))
+NumNas<-sum(!complete.cases(ActivityData))
+print(paste("Number of rows with NAs:",NumNas))
+```
+
+- Fill in the NAs
+The strategy that I will use is to take replace the NAs by the mean for that day.
+The new data set is called ActivityFullData.
+
+```{r FillData}
+MeanByDay<-aggregate(steps~date,ActivityData,mean)
+ActivityFullData<-transform(ActivityData,steps=ifelse(is.na(steps),
+              MeanByDay[as.Date(MeanByDay$date)%in%as.Date(ActivityData$date),2],steps))
+```
+
+- Make a new histogram  of the total number of steps taken each day
+```{r makehistogram1}
+SumDataActivityFull<-aggregate(steps~date,ActivityData,sum)
+p1<- ggplot(SumDataActivityFull,aes(x = steps))+ 
+  geom_histogram(fill="green") +
+  labs(x="Total number of steps per day", y = "Count")
+print(p1)
+```
+
+2.)New Mean and median of the number of steps
+
+``` {r meanmedianNew}
+MeanValNew<-mean(SumDataActivityFull[,2])
+MedianValNew<-median(SumDataActivityFull[,2])
+print(MeanValNew)
+print(MedianValNew)
+```
+
+The mean and median values are not affected by imputing the NAs with 
+means over that corresponding day.
+
+#Are there differences in activity patterns between weekdays and weekends?
+- First create the grouped data and the factors weekends and weekdays
+
+```{r}
+ActivityFullData<-mutate(ActivityFullData,weekdays(as.Date(date)))
+names(ActivityFullData)[4]<-c("DayType")
+ActivityFullData<-transform(ActivityFullData,DayType=ifelse(DayType %in% c("Saturday","Sunday"),"weekend","weekday"))
+ActivityFullData$DayType<-as.factor(ActivityFullData$DayType)
+```
+
+#Are there differences in activity patterns between weekdays and weekends?
+
+```{r}
+AvgFullData<-aggregate(steps~interval+DayType,ActivityFullData,mean)
+p3<-ggplot(AvgFullData,aes(interval,steps,color=DayType)) +
+  geom_line() +
+  labs(x="Interval", y = "Number of steps") +
+  facet_wrap(~DayType,nrow=2)
+print(p3)
+```
+
