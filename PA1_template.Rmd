@@ -42,8 +42,8 @@ print(p)
 ``` {r meanmedian}
 MeanVal<-mean(SumDataActivity[,2])
 MedianVal<-median(SumDataActivity[,2])
-print(MeanVal)
-print(MedianVal)
+print(paste("Mean: ",MeanVal))
+print(paste("Median: ",MedianVal))
 ```
 
 #What is the average daily activity pattern?
@@ -51,7 +51,7 @@ print(MedianVal)
 ```{r averageDailyPat }
 AvgDailyIntervalPat<-aggregate(steps~interval,ActivityData,mean)
 with(AvgDailyIntervalPat,{ 
-  plot(interval,steps,type="l",xlab="time interval [sec]",ylab="Avg number of steps",lwd="2",main="Average activity",col="red") 
+  plot(interval,steps,type="l",xlab="time [sec]",ylab="Avg number of steps per day",lwd="2",main="Average activity",col="red") 
 })
 ```
 
@@ -92,13 +92,13 @@ p1<- ggplot(SumDataActivityFull,aes(x = steps))+
 print(p1)
 ```
 
-2.)New Mean and median of the number of steps
+-New Mean and median of the number of steps
 
 ``` {r meanmedianNew}
 MeanValNew<-mean(SumDataActivityFull[,2])
 MedianValNew<-median(SumDataActivityFull[,2])
-print(MeanValNew)
-print(MedianValNew)
+print(paste("New mean:",MeanValNew))
+print(paste("New median:",MedianValNew))
 ```
 
 The mean and median values are not affected by imputing the NAs with 
@@ -125,3 +125,4 @@ p3<-ggplot(AvgFullData,aes(interval,steps,color=DayType)) +
 print(p3)
 ```
 
+-There is in general a higher activity on the weekends compared to weekdays.

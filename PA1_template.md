@@ -74,19 +74,19 @@ print(p)
 ```r
 MeanVal<-mean(SumDataActivity[,2])
 MedianVal<-median(SumDataActivity[,2])
-print(MeanVal)
+print(paste("Mean: ",MeanVal))
 ```
 
 ```
-## [1] 10766.19
+## [1] "Mean:  10766.1886792453"
 ```
 
 ```r
-print(MedianVal)
+print(paste("Median: ",MedianVal))
 ```
 
 ```
-## [1] 10765
+## [1] "Median:  10765"
 ```
 
 #What is the average daily activity pattern?
@@ -95,7 +95,7 @@ print(MedianVal)
 ```r
 AvgDailyIntervalPat<-aggregate(steps~interval,ActivityData,mean)
 with(AvgDailyIntervalPat,{ 
-  plot(interval,steps,type="l",xlab="time interval [sec]",ylab="Avg number of steps",lwd="2",main="Average activity",col="red") 
+  plot(interval,steps,type="l",xlab="time [sec]",ylab="Avg number of steps per day",lwd="2",main="Average activity",col="red") 
 })
 ```
 
@@ -156,25 +156,25 @@ print(p1)
 
 ![plot of chunk makehistogram1](figure/makehistogram1-1.png) 
 
-2.)New Mean and median of the number of steps
+-New Mean and median of the number of steps
 
 
 ```r
 MeanValNew<-mean(SumDataActivityFull[,2])
 MedianValNew<-median(SumDataActivityFull[,2])
-print(MeanValNew)
+print(paste("New mean:",MeanValNew))
 ```
 
 ```
-## [1] 10766.19
+## [1] "New mean: 10766.1886792453"
 ```
 
 ```r
-print(MedianValNew)
+print(paste("New median:",MedianValNew))
 ```
 
 ```
-## [1] 10765
+## [1] "New median: 10765"
 ```
 
 The mean and median values are not affected by imputing the NAs with 
@@ -205,3 +205,4 @@ print(p3)
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
 
+-There is in general a higher activity on the weekends compared to weekdays.
